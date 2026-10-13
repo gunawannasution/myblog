@@ -1,0 +1,49 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Tentang Saya - DevJournal{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm rounded-4 p-4 p-sm-5 bg-white mb-4">
+    <div class="text-center mb-4">
+        <!-- Foto Profil Placeholder (Bisa diganti nanti) -->
+        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 100px; height: 100px; font-size: 2.5rem; font-weight: bold;">
+            DJ
+        </div>
+        <h2 class="fw-bold text-dark mb-1">Halo, Saya Pemilik Blog</h2>
+        <p class="text-muted small">Python & Django Web Developer</p>
+    </div>
+
+    <hr class="text-muted opacity-25 mb-4">
+
+    <h5 class="fw-bold text-dark mb-3">Tentang Jurnal Ini</h5>
+    <p class="text-secondary lh-lg fs-6">
+        DevJournal didirikan sebagai ruang berbagi catatan dokumentasi seputar arsitektur pemrograman, pengembangan aplikasi web berbasis Python, dan tips mengelola server Django secara profesional. Semua artikel di sini ditulis berdasarkan pengalaman nyata dalam memecahkan masalah kode sehari-hari.
+    </p>
+
+    <h5 class="fw-bold text-dark mt-4 mb-3">Keahlian Teknologi</h5>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <span class="badge bg-light text-dark border rounded-3 px-3 py-2 font-monospace">Python 3.15.0</span>
+        <span class="badge bg-light text-dark border rounded-3 px-3 py-2 font-monospace">Django Framework</span>
+        <span class="badge bg-light text-dark border rounded-3 px-3 py-2 font-monospace">Bootstrap 5</span>
+        <span class="badge bg-light text-dark border rounded-3 px-3 py-2 font-monospace">PostgreSQL / SQLite</span>
+        <span class="badge bg-light text-dark border rounded-3 px-3 py-2 font-monospace">REST APIs</span>
+    </div>
+
+    <h5 class="fw-bold text-dark mb-3">Hubungi Saya</h5>
+    <p class="text-secondary small mb-3">Tertarik untuk berkolaborasi atau memiliki pertanyaan seputar artikel? Silakan hubungi melalui saluran di bawah ini:</p>
+    <div class="row g-2">
+        <div class="col-sm-6">
+            <a href="#" class="btn btn-outline-dark btn-sm w-100 rounded-3 py-2 fw-medium d-inline-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                GitHub Profile
+            </a>
+        </div>
+        <div class="col-sm-6">
+            <a href="mailto:admin@devjournal.com" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-medium d-inline-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+                Kirim Email
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

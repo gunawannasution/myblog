@@ -1,0 +1,49 @@
+<!-- blog/templates/blog/post/detail.html -->
+{% extends "blog/base.html" %}
+
+<!-- MENYUNTIKKAN SEO DINAMIS BERDASARKAN ISI ARTIKEL -->
+{% block title %}{{ post.title }} - {{ site_info.site_title }}{% endblock %}
+{% block meta_description %}{{ post.body|striptags|truncatechars:150 }}{% endblock %}
+
+<!-- SEO UNTUK SOSIAL MEDIA / WHATSAPP -->
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.body|striptags|truncatechars:150 }}{% endblock %}
+{% block og_image %}
+    {% if post.image %}
+        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{=post.image.url}">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<article class="card border-0 shadow-sm rounded-4 p-4 p-sm-5 bg-white">
+    <!-- TOMBOL KEMBALI -->
+    <a href="{% url 'blog:post_list' %}" class="d-inline-flex align-items-center text-decoration-none text-muted small mb-4">
+        <svg class="me-1" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:1.1rem; height:1.1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Kembali ke daftar blog
+    </a>
+
+    <!-- METADATA ARTIKEL -->
+    <div class="d-flex align-items-center gap-2 text-muted small mb-2">
+        <span class="fw-semibold text-dark">{{ post.author.get_full_name|default:post.author.username }}</span>
+        <span>•</span>
+        <time>{{ post.publish|date:"d F Y" }}</time>
+    </div>
+
+    <!-- JUDUL BESAR -->
+    <h1 class="display-6 fw-bold text-dark tracking-tight mb-4">
+        {{ post.title }}
+    </h1>
+
+    <!-- GAMBAR UTAMA ARTIKEL (OPSIONAL) -->
+    {% if post.image %}
+    <div class="mb-4 overflow-hidden rounded-3 shadow-sm">
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid w-100">
+    </div>
+    {% endif %}
+
+    <!-- ISI KONTEN UTAMA CKEDITOR KAYA FITUR -->
+    <div class="text-secondary lh-lg fs-6 ck-content">
+        {{ post.body|safe }}
+    </div>
+</article>
+{% endblock %}

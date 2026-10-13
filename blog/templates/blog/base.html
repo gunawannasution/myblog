@@ -1,0 +1,127 @@
+<!-- blog/templates/blog/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 1. META TAG SEO ESENSIAL -->
+    <title>{% block title %}{{ site_info.site_title }} - {{ site_info.site_tagline }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Jurnal pemrograman terpercaya yang membagikan tutorial, arsitektur sistem, dan tips terbaik seputar pengembangan web Django dan Python.{% endblock %}">
+    <meta name="robots" content="index, follow">
+
+    <!-- 2. META OPEN GRAPH (Untuk Kebutuhan Share ke Sosial Media/WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}DevJournal - Catatan Pemrograman{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Tutorial dan tips pengembangan web menggunakan Django dan Python modern.{% endblock %}">
+    {% block og_image %}
+    <!-- Gambar default jika halaman tidak punya gambar khusus -->
+    <meta property="og:image" content="https://picsum.photos">
+    {% endblock %}
+    
+    <!-- Memanggil Bootstrap CSS Lokal -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- 1. STYLE TAMBAHAN UNTUK MERAPIKAN FORMAT KODE CKEDITOR 5 -->
+    <link rel="stylesheet" href="https://ckeditor.com">
+    <style>
+        /* Memastikan konten HTML CKEditor rapi dan responsif di Bootstrap */
+        .ck-content img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 8px; }
+        .ck-content blockquote { border-left: 4px solid #0d6efd; padding-left: 1rem; color: #6c757d; font-style: italic; }
+        .ck-content table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; }
+        .ck-content table td, .ck-content table th { border: 1px solid #dee2e6; padding: 8px; }
+        .ck-content pre { background-color: #f8f9fa; padding: 1rem; border-radius: 6px; border: 1px solid #e9ecef; font-family: monospace; }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-screen">
+
+    <!-- NAVBAR BOOTSTRAP -->
+    <nav class="navbar navbar-expand-lg navbar-white bg-white border-bottom sticky-top shadow-sm py-3">
+        <div class="container max-width-custom" style="max-width: 1024px;">
+            <a class="navbar-brand fw-bold text-primary fs-4" href="{% url 'blog:post_list' %}">{{ site_info.site_title }}.</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav gap-3 text-end">
+                    <li class="nav-item">
+                        <a class="nav-link active text-primary fw-semibold" href="{% url 'blog:post_list' %}">Artikel</a>
+                    </li>
+                    <li class="nav-item">
+                         <!-- PANGGIL URL ABOUT DI SINI -->
+                         <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active text-primary fw-semibold{% else %}text-muted{% endif %}" href="{% url 'blog:about' %}">Tentang</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-muted" href="#">Kontak</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow-1 container my-5" style="max-width: 1024px;">
+        <div class="row g-4">
+            
+            <!-- Area Konten Utama -->
+            <div class="col-lg-8">
+                {% block content %}
+                <!-- Konten dinamis masuk di sini -->
+                {% endblock %}
+            </div>
+
+            <!-- Sidebar Kanan -->
+            <div class="col-lg-4">
+                <div class="position-sticky" style="top: 90px;">
+                    <!-- KOMPONEN FORM PENCARIAN MODERN -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                        <h5 class="card-title fw-bold text-dark mb-3">Cari Artikel</h5>
+                        <form action="{% url 'blog:post_list' %}" method="get" class="d-flex gap-2">
+                            <input type="text" name="query" class="form-control form-control-sm rounded-3 bg-light border-0 px-3" placeholder="Ketik kata kunci..." value="{{ request.GET.query|default:'' }}">
+                            <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.1rem; height: 1.1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Box Tentang -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                        <h5 class="card-title fw-bold text-dark mb-3">Tentang Blog</h5>
+                        <p class="card-text text-muted small lh-base">
+                            Selamat datang di jurnal pemrograman kami. Di sini kami membagikan tutorial, arsitektur sistem, dan tips terbaik seputar pengembangan web menggunakan Django dan Python modern.
+                        </p>
+                    </div>
+
+                    <!-- Box Berlangganan -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white">
+                        <h5 class="card-title fw-bold mb-2">Berlangganan</h5>
+                        <p class="card-text text-secondary small mb-4">Dapatkan artikel teknologi terbaru langsung di inbox email Anda.</p>
+                        <form onsubmit="event.preventDefault();">
+                            <div class="mb-3">
+                                <input type="email" class="form-control form-control-sm bg-secondary bg-opacity-25 border-0 text-white placeholder-secondary" placeholder="Email Anda">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-full w-100 fw-medium py-2 rounded-3">Ikuti</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+   <footer class="bg-white border-t py-4 mt-auto">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center text-muted small" style="max-width: 1024px;">
+            <!-- GANTI TEKS FOOTER MENJADI DINAMIS -->
+            <p class="mb-2 mb-sm-0">&copy; {% now "Y" %} {{ site_info.site_title }}. {{ site_info.footer_text }}</p>
+            <p class="mb-0">Dibuat menggunakan Bootstrap Lokal & Django</p>
+        </div>
+    </footer>
+
+    <!-- Memanggil Bootstrap JS Lokal di ujung body agar loading web cepat -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
