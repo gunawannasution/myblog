@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django_ckeditor_5.fields import CKEditor5Field
+from taggit.managers import TaggableManager
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -13,9 +14,16 @@ class Post(models.Model):
 
     # Kolom baru untuk gambar (bersifat opsional/boleh kosong agar postingan lama tidak error)
     image = models.ImageField(upload_to="blog/%Y/%m/%d/", blank=True, null=True)
-
+    # --- FITUR BARU ---
+    tags = TaggableManager()  # <-- 2. TAMBAHKAN MANAGER TAG
+    meta_keywords = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Pisahkan dengan koma, misal: django, python, tutorial",
+    )
     # body = models.TextField()
     body = CKEditor5Field('Isi Artikel', config_name='extends')
+
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -29,7 +37,7 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-#buat configurasi utama nama blog dan deskripsi
+# buat configurasi utama nama blog dan deskripsi
 class SiteSetting(models.Model):
     site_title = models.CharField(max_length=100, default="Dunia Kode")
     site_tagline = models.CharField(max_length=255, default="Catatan Pemrograman Python & Django"    )

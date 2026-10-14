@@ -3,6 +3,7 @@
 {% block title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
 
 {% block meta_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
+{% block meta_keywords %}{{ post.meta_keywords }}{% endblock %}
 
 {% block meta_robots %}index, follow{% endblock %}
 {% block og_type %}article{% endblock %}

@@ -9,6 +9,7 @@
 
     <title>{% block title %}{{ site_info.site_title|default:"Weblog Teknologi" }} — {{ site_info.site_tagline|default:"Tutorial dan catatan pemrograman" }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Tutorial praktis Python, Django, JavaScript, pengembangan web, dan arsitektur sistem.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}programming, coding, python, django{% endblock %}">
     <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
     <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
 
