@@ -1,49 +1,71 @@
-<!-- blog/templates/blog/post/detail.html -->
 {% extends "blog/base.html" %}
 
-<!-- MENYUNTIKKAN SEO DINAMIS BERDASARKAN ISI ARTIKEL -->
-{% block title %}{{ post.title }} - {{ site_info.site_title }}{% endblock %}
-{% block meta_description %}{{ post.body|striptags|truncatechars:150 }}{% endblock %}
+{% block title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
 
-<!-- SEO UNTUK SOSIAL MEDIA / WHATSAPP -->
-{% block og_title %}{{ post.title }}{% endblock %}
-{% block og_description %}{{ post.body|striptags|truncatechars:150 }}{% endblock %}
+{% block meta_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
+
+{% block meta_robots %}index, follow{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
+{% block og_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
+{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}
+{% block twitter_card %}{% if post.image %}summary_large_image{% else %}summary{% endif %}{% endblock %}
+{% block twitter_title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
+{% block twitter_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
+
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}
+
 {% block og_image %}
     {% if post.image %}
-        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{=post.image.url}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+    <meta property="og:image:alt" content="{{ post.title|striptags }}">
+    {% else %}
+    <meta property="og:image" content="">
     {% endif %}
 {% endblock %}
 
+{% block extra_head %}
+    <meta property="article:published_time" content="{{ post.publish|date:'c' }}">
+    {% if post.author %}<meta property="article:author" content="{{ post.author.get_full_name|default:post.author.username }}">{% endif %}
+{% endblock %}
+
 {% block content %}
-<article class="card border-0 shadow-sm rounded-4 p-4 p-sm-5 bg-white">
-    <!-- TOMBOL KEMBALI -->
-    <a href="{% url 'blog:post_list' %}" class="d-inline-flex align-items-center text-decoration-none text-muted small mb-4">
-        <svg class="me-1" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:1.1rem; height:1.1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Kembali ke daftar blog
-    </a>
+<article class="card-premium p-4 p-sm-5">
+    <nav aria-label="Breadcrumb" class="small mb-4">
+        <a href="{% url 'blog:post_list' %}">Artikel</a>
+        <span class="text-secondary mx-2" aria-hidden="true">/</span>
+        <span class="text-secondary" aria-current="page">{{ post.title|striptags|truncatechars:70 }}</span>
+    </nav>
 
-    <!-- METADATA ARTIKEL -->
-    <div class="d-flex align-items-center gap-2 text-muted small mb-2">
-        <span class="fw-semibold text-dark">{{ post.author.get_full_name|default:post.author.username }}</span>
-        <span>•</span>
-        <time>{{ post.publish|date:"d F Y" }}</time>
-    </div>
+    <header class="mb-4">
+        <h1 class="display-6 fw-bold mb-3">{{ post.title }}</h1>
 
-    <!-- JUDUL BESAR -->
-    <h1 class="display-6 fw-bold text-dark tracking-tight mb-4">
-        {{ post.title }}
-    </h1>
+        <div class="d-flex flex-wrap align-items-center gap-2 small text-secondary">
+            {% if post.author %}
+            <span><i class="bi bi-person-circle me-1" aria-hidden="true"></i>{{ post.author.get_full_name|default:post.author.username }}</span>
+            <span aria-hidden="true">·</span>
+            {% endif %}
+            <time datetime="{{ post.publish|date:'c' }}"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ post.publish|date:"d M Y" }}</time>
+        </div>
+    </header>
 
-    <!-- GAMBAR UTAMA ARTIKEL (OPSIONAL) -->
     {% if post.image %}
-    <div class="mb-4 overflow-hidden rounded-3 shadow-sm">
-        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid w-100">
-    </div>
+    <figure class="mb-4">
+        <img src="{{ post.image.url }}" alt="{{ post.title|striptags }}" class="post-image rounded-4" width="1200" height="675" fetchpriority="high" decoding="async">
+        {% if post.image_caption %}
+        <figcaption class="text-secondary small text-center mt-2">{{ post.image_caption }}</figcaption>
+        {% endif %}
+    </figure>
     {% endif %}
 
-    <!-- ISI KONTEN UTAMA CKEDITOR KAYA FITUR -->
-    <div class="text-secondary lh-lg fs-6 ck-content">
+    <div class="ck-content">
         {{ post.body|safe }}
     </div>
+
+    <footer class="border-top mt-5 pt-4">
+        <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary rounded-3">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Kembali ke Artikel
+        </a>
+    </footer>
 </article>
 {% endblock %}

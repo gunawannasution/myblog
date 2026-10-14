@@ -1,127 +1,238 @@
-<!-- blog/templates/blog/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- 1. META TAG SEO ESENSIAL -->
-    <title>{% block title %}{{ site_info.site_title }} - {{ site_info.site_tagline }}{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Jurnal pemrograman terpercaya yang membagikan tutorial, arsitektur sistem, dan tips terbaik seputar pengembangan web Django dan Python.{% endblock %}">
-    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#0b1020">
 
-    <!-- 2. META OPEN GRAPH (Untuk Kebutuhan Share ke Sosial Media/WhatsApp) -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{% block og_title %}DevJournal - Catatan Pemrograman{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Tutorial dan tips pengembangan web menggunakan Django dan Python modern.{% endblock %}">
+    <title>{% block title %}{{ site_info.site_title|default:"Weblog Teknologi" }} — {{ site_info.site_tagline|default:"Tutorial dan catatan pemrograman" }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Tutorial praktis Python, Django, JavaScript, pengembangan web, dan arsitektur sistem.{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
+
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="{{ site_info.site_title|default:'Weblog Teknologi' }}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ site_info.site_title|default:'Weblog Teknologi' }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ site_info.site_tagline|default:'Tutorial dan catatan pemrograman' }}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
     {% block og_image %}
-    <!-- Gambar default jika halaman tidak punya gambar khusus -->
-    <meta property="og:image" content="https://picsum.photos">
+    <meta property="og:image" content="">
     {% endblock %}
-    
-    <!-- Memanggil Bootstrap CSS Lokal -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <!-- 1. STYLE TAMBAHAN UNTUK MERAPIKAN FORMAT KODE CKEDITOR 5 -->
-    <link rel="stylesheet" href="https://ckeditor.com">
-    <style>
-        /* Memastikan konten HTML CKEditor rapi dan responsif di Bootstrap */
-        .ck-content img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 8px; }
-        .ck-content blockquote { border-left: 4px solid #0d6efd; padding-left: 1rem; color: #6c757d; font-style: italic; }
-        .ck-content table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; }
-        .ck-content table td, .ck-content table th { border: 1px solid #dee2e6; padding: 8px; }
-        .ck-content pre { background-color: #f8f9fa; padding: 1rem; border-radius: 6px; border: 1px solid #e9ecef; font-family: monospace; }
-    </style>
-</head>
-<body class="bg-light d-flex flex-column min-vh-screen">
+    <meta name="twitter:card" content="{% block twitter_card %}summary{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ site_info.site_title|default:'Weblog Teknologi' }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ site_info.site_tagline|default:'Tutorial dan catatan pemrograman' }}{% endblock %}">
 
-    <!-- NAVBAR BOOTSTRAP -->
-    <nav class="navbar navbar-expand-lg navbar-white bg-white border-bottom sticky-top shadow-sm py-3">
-        <div class="container max-width-custom" style="max-width: 1024px;">
-            <a class="navbar-brand fw-bold text-primary fs-4" href="{% url 'blog:post_list' %}">{{ site_info.site_title }}.</a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --brand: #4f46e5;
+            --brand-dark: #3730a3;
+            --brand-light: #eef2ff;
+            --ink: #111827;
+            --muted: #6b7280;
+            --surface: #fff;
+            --page-bg: #f6f7fb;
+            --border: #e8eaf1;
+            --radius: 20px;
+            --shadow-sm: 0 4px 18px rgba(15,23,42,.035);
+            --shadow-lg: 0 18px 45px rgba(15,23,42,.075);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 5% 0%, rgba(79,70,229,.055), transparent 32rem), var(--page-bg);
+            color: var(--ink);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 15px; line-height: 1.75; -webkit-font-smoothing: antialiased;
+        }
+        a { text-decoration: none; }
+        a:focus-visible, button:focus-visible, input:focus-visible {
+            outline: 3px solid rgba(79,70,229,.45); outline-offset: 3px;
+        }
+        ::selection { background: rgba(79,70,229,.17); color: var(--brand-dark); }
+        .site-navbar {
+            background: rgba(255,255,255,.9); border-bottom: 1px solid rgba(226,232,240,.85);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        }
+        .site-navbar .container { min-height: 76px; }
+        .navbar-brand {
+            display: inline-flex; align-items: center; gap: 11px; color: var(--ink)!important;
+            font-size: 1.3rem; font-weight: 850; letter-spacing: -.8px;
+        }
+        .brand-mark {
+            display: inline-flex; align-items: center; justify-content: center; width: 39px; height: 39px;
+            border-radius: 13px; color: #fff; background: linear-gradient(135deg,#6366f1,#4338ca);
+            box-shadow: 0 6px 16px rgba(79,70,229,.25);
+        }
+        .brand-mark svg { width: 21px; height: 21px; }
+        .brand-dot { color: var(--brand); }
+        .navbar-nav { gap: 7px; }
+        .navbar-nav .nav-link {
+            padding: 9px 16px!important; border-radius: 12px; color: #64748b;
+            font-size: .91rem; font-weight: 600; transition: color .2s, background .2s;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: var(--brand)!important; background: var(--brand-light); }
+        .site-main { width: 100%; max-width: 1180px; padding-top: 42px; padding-bottom: 72px; }
+        .content-column, .sidebar-column { min-width: 0; }
+        .card-premium, .content-column .card, .sidebar-card {
+            border: 1px solid rgba(232,234,241,.9); border-radius: var(--radius);
+            background: var(--surface); box-shadow: var(--shadow-sm);
+        }
+        .card-premium { transition: box-shadow .25s ease, border-color .25s ease; }
+        .card-premium:hover, .content-column .card:hover { border-color: #dfe3f8; box-shadow: var(--shadow-lg); }
+        .sidebar-sticky { position: sticky; top: 100px; }
+        .sidebar-card { padding: 25px; margin-bottom: 22px; }
+        .sidebar-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 18px; color: var(--ink); font-size: 1rem; font-weight: 800; }
+        .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 37px; height: 37px; border-radius: 12px; color: var(--brand); background: var(--brand-light); }
+        .sidebar-icon svg { width: 19px; height: 19px; }
+        .sidebar-description { color: var(--muted); font-size: .875rem; line-height: 1.85; }
+        .search-form { display: flex; gap: 9px; }
+        .search-input { min-width: 0; height: 45px; padding: 0 14px; border: 1px solid #e9eaf2; border-radius: 12px; background: #f8f9fc; color: var(--ink); font-size: .84rem; }
+        .search-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 45px; height: 45px; border: 0; border-radius: 12px; color: #fff; background: linear-gradient(135deg,#6366f1,#4338ca); }
+        .search-button svg { width: 19px; height: 19px; }
+        .about-accent { width: 43px; height: 4px; margin-bottom: 15px; border-radius: 10px; background: linear-gradient(90deg,#6366f1,#a5b4fc); }
+        .newsletter-card { padding: 28px 25px; border-radius: var(--radius); color: #fff; background: linear-gradient(145deg,#171b38,#101426 75%); box-shadow: 0 15px 35px rgba(17,24,39,.13); }
+        .newsletter-label { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 15px; color: #c7d2fe; font-size: .7rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+        .newsletter-label span { width: 7px; height: 7px; border-radius: 50%; background: #818cf8; }
+        .newsletter-title { margin-bottom: 10px; font-size: 1.25rem; font-weight: 800; }
+        .newsletter-description { margin-bottom: 22px; color: #b7bfd5; font-size: .84rem; line-height: 1.8; }
+        .newsletter-input { height: 45px; padding: 0 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 11px; color: #fff!important; background: rgba(255,255,255,.07); }
+        .newsletter-input::placeholder { color: #a5aec5!important; }
+        .newsletter-button { min-height: 45px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg,#6366f1,#4f46e5); font-weight: 750; }
+        .ck-content { color: #374151; font-size: 1rem; line-height: 1.95; overflow-wrap: anywhere; }
+        .ck-content h2, .ck-content h3, .ck-content h4, .ck-content h5, .ck-content h6 { margin-top: 1.8em; margin-bottom: .7em; color: var(--ink); font-weight: 800; line-height: 1.35; }
+        .ck-content h2 { font-size: 1.65rem; } .ck-content h3 { font-size: 1.35rem; }
+        .ck-content p { margin-bottom: 1.35rem; }
+        .ck-content a { color: var(--brand); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+        .ck-content img, .ck-content video, .ck-content iframe { max-width: 100%; border-radius: 14px; }
+        .ck-content img { display: block; height: auto; margin: 2rem auto; }
+        .ck-content figure { max-width: 100%; margin: 2rem 0; }
+        .ck-content figcaption { margin-top: 10px; color: var(--muted); font-size: .82rem; text-align: center; }
+        .ck-content blockquote { margin: 1.8rem 0; padding: 20px 24px; border-left: 4px solid #6366f1; border-radius: 0 13px 13px 0; color: #4b5563; background: #f4f5ff; font-style: italic; }
+        .ck-content ul, .ck-content ol { margin-bottom: 1.5rem; padding-left: 1.6rem; }
+        .ck-content pre { max-width: 100%; padding: 20px; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 14px; color: #e5e7eb; background: #111827; font-size: .86rem; line-height: 1.8; tab-size: 4; }
+        .ck-content pre code { color: inherit; background: transparent; }
+        .ck-content :not(pre) > code { padding: 3px 7px; border-radius: 6px; color: #4338ca; background: #eef2ff; font-size: .88em; }
+        .post-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+        .post-title-link { color: var(--ink); transition: color .2s ease; }
+        .post-title-link:hover { color: var(--brand); }
+        .site-footer { border-top: 1px solid var(--border); background: rgba(255,255,255,.85); }
+        .footer-inner { max-width: 1180px; min-height: 84px; gap: 10px 24px; }
+        .footer-text { margin: 0; color: #7b8496; font-size: .8rem; line-height: 1.8; }
+        .footer-brand { color: #4b5563; font-weight: 750; }
+        @media (max-width: 991.98px) {
+            .site-main { padding-top: 32px; padding-bottom: 48px; }
+            .sidebar-sticky { position: static; }
+            .sidebar-column { margin-top: 12px; }
+            .navbar-nav { gap: 3px; padding-top: 12px; padding-bottom: 12px; }
+        }
+        @media (max-width: 575.98px) {
+            body { font-size: 14px; }
+            .site-navbar .container { min-height: 68px; }
+            .navbar-brand { font-size: 1.1rem; }
+            .brand-mark { width: 35px; height: 35px; border-radius: 11px; }
+            .site-main { padding-top: 24px; padding-bottom: 38px; }
+            .sidebar-card, .newsletter-card { padding: 21px; border-radius: 17px; }
+            .ck-content { font-size: .95rem; }
+            .ck-content h2 { font-size: 1.45rem; }
+            .ck-content h3 { font-size: 1.2rem; }
+            .footer-inner { padding-top: 22px; padding-bottom: 22px; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto!important; animation-duration: .01ms!important; transition-duration: .01ms!important; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <a class="visually-hidden-focusable p-3 bg-white" href="#main-content">Lewati ke konten utama</a>
+
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top site-navbar" aria-label="Navigasi utama">
+        <div class="container" style="max-width:1180px;">
+            <a class="navbar-brand" href="{% url 'blog:post_list' %}">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m8 17-5-5 5-5"></path><path d="m16 7 5 5-5 5"></path><path d="m14 4-4 16"></path>
+                    </svg>
+                </span>
+                <span>{{ site_info.site_title|default:"DevJournal" }}<span class="brand-dot">.</span></span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Buka navigasi">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav gap-3 text-end">
+                <ul class="navbar-nav mt-2 mt-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active text-primary fw-semibold" href="{% url 'blog:post_list' %}">Artikel</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'post_list' %}active{% endif %}" {% if request.resolver_match.url_name == 'post_list' %}aria-current="page"{% endif %} href="{% url 'blog:post_list' %}">Artikel</a>
                     </li>
                     <li class="nav-item">
-                         <!-- PANGGIL URL ABOUT DI SINI -->
-                         <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active text-primary fw-semibold{% else %}text-muted{% endif %}" href="{% url 'blog:about' %}">Tentang</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %} href="{% url 'blog:about' %}">Tentang</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-muted" href="#">Kontak</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="mailto:">Kontak</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-grow-1 container my-5" style="max-width: 1024px;">
-        <div class="row g-4">
-            
-            <!-- Area Konten Utama -->
-            <div class="col-lg-8">
-                {% block content %}
-                <!-- Konten dinamis masuk di sini -->
-                {% endblock %}
+    <main id="main-content" class="site-main container flex-grow-1">
+        <div class="row g-4 g-xl-5">
+            <div class="col-lg-8 content-column">
+                {% block content %}{% endblock %}
             </div>
 
-            <!-- Sidebar Kanan -->
-            <div class="col-lg-4">
-                <div class="position-sticky" style="top: 90px;">
-                    <!-- KOMPONEN FORM PENCARIAN MODERN -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                        <h5 class="card-title fw-bold text-dark mb-3">Cari Artikel</h5>
-                        <form action="{% url 'blog:post_list' %}" method="get" class="d-flex gap-2">
-                            <input type="text" name="query" class="form-control form-control-sm rounded-3 bg-light border-0 px-3" placeholder="Ketik kata kunci..." value="{{ request.GET.query|default:'' }}">
-                            <button type="submit" class="btn btn-primary btn-sm rounded-3 px-3">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.1rem; height: 1.1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            </button>
+            <aside class="col-lg-4 sidebar-column" aria-label="Sidebar blog">
+                <div class="sidebar-sticky">
+                    <section class="sidebar-card" aria-labelledby="search-heading">
+                        <h2 class="sidebar-heading" id="search-heading">
+                            <span class="sidebar-icon" aria-hidden="true"><i class="bi bi-search"></i></span>
+                            Cari Artikel
+                        </h2>
+                        <form action="{% url 'blog:post_list' %}" method="get" class="search-form" role="search">
+                            <input type="search" name="query" class="form-control search-input" placeholder="Cari topik menarik..." aria-label="Kata kunci artikel" value="{{ request.GET.query|default:'' }}">
+                            <button type="submit" class="search-button" aria-label="Cari artikel"><i class="bi bi-search" aria-hidden="true"></i></button>
                         </form>
-                    </div>
-                    
-                    <!-- Box Tentang -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                        <h5 class="card-title fw-bold text-dark mb-3">Tentang Blog</h5>
-                        <p class="card-text text-muted small lh-base">
-                            Selamat datang di jurnal pemrograman kami. Di sini kami membagikan tutorial, arsitektur sistem, dan tips terbaik seputar pengembangan web menggunakan Django dan Python modern.
-                        </p>
-                    </div>
+                    </section>
 
-                    <!-- Box Berlangganan -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white">
-                        <h5 class="card-title fw-bold mb-2">Berlangganan</h5>
-                        <p class="card-text text-secondary small mb-4">Dapatkan artikel teknologi terbaru langsung di inbox email Anda.</p>
-                        <form onsubmit="event.preventDefault();">
+                    <section class="sidebar-card" aria-labelledby="about-heading">
+                        <div class="about-accent"></div>
+                        <h2 class="sidebar-heading" id="about-heading">Tentang Blog</h2>
+                        <p class="sidebar-description mb-0">{{ site_info.site_tagline|default:"Tutorial pemrograman, pengembangan web, dan teknologi praktis." }}</p>
+                    </section>
+
+                    <section class="newsletter-card" aria-labelledby="newsletter-heading">
+                        <div class="newsletter-label"><span aria-hidden="true"></span> Stay Updated</div>
+                        <h2 class="newsletter-title" id="newsletter-heading">Ide Hebat, Langsung ke Inbox.</h2>
+                        <p class="newsletter-description">Dapatkan artikel teknologi dan tutorial pemrograman pilihan melalui email.</p>
+                        <!-- Form ini hanya tampilan. Hubungkan ke view newsletter sebelum digunakan. -->
+                        <form action="#" method="post" onsubmit="return false;">
                             <div class="mb-3">
-                                <input type="email" class="form-control form-control-sm bg-secondary bg-opacity-25 border-0 text-white placeholder-secondary" placeholder="Email Anda">
+                                <label class="visually-hidden" for="newsletter-email">Alamat email</label>
+                                <input id="newsletter-email" type="email" name="email" class="form-control newsletter-input" placeholder="nama@email.com" autocomplete="email" required>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-full w-100 fw-medium py-2 rounded-3">Ikuti</button>
+                            <button type="submit" class="btn newsletter-button w-100">Ikuti Newsletter <span aria-hidden="true">&rarr;</span></button>
                         </form>
-                    </div>
-
+                        <p class="mb-0 mt-3 text-center" style="color:#8993ad;font-size:.72rem;">Konten berkualitas, tanpa spam.</p>
+                    </section>
                 </div>
-            </div>
-
+            </aside>
         </div>
     </main>
 
-    <!-- FOOTER -->
-   <footer class="bg-white border-t py-4 mt-auto">
-        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center text-muted small" style="max-width: 1024px;">
-            <!-- GANTI TEKS FOOTER MENJADI DINAMIS -->
-            <p class="mb-2 mb-sm-0">&copy; {% now "Y" %} {{ site_info.site_title }}. {{ site_info.footer_text }}</p>
-            <p class="mb-0">Dibuat menggunakan Bootstrap Lokal & Django</p>
+    <footer class="site-footer mt-auto">
+        <div class="container footer-inner d-flex flex-column flex-sm-row justify-content-between align-items-center" style="max-width:1180px;">
+            <p class="footer-text">&copy; {% now "Y" %} <span class="footer-brand">{{ site_info.site_title|default:"Weblog Teknologi" }}</span>. {{ site_info.footer_text|default:"Dibuat untuk berbagi pengetahuan." }}</p>
+            <p class="footer-text">Django &amp; Bootstrap</p>
         </div>
     </footer>
-
-    <!-- Memanggil Bootstrap JS Lokal di ujung body agar loading web cepat -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
