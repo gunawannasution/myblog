@@ -1,0 +1,589 @@
+{% extends "unfold/layouts/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* ==========================================
+       PREMIUM BLOG ADMIN DASHBOARD
+       Standalone CSS — no Tailwind dependency
+       ========================================== */
+
+    .bp-dashboard {
+        --bp-bg: #ffffff;
+        --bp-surface: #ffffff;
+        --bp-border: #e7eaf0;
+        --bp-text: #172033;
+        --bp-muted: #687386;
+        --bp-accent: #6558e8;
+        --bp-radius: 18px;
+        color: var(--bp-text);
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 28px;
+        font-family: inherit;
+    }
+
+    .dark .bp-dashboard {
+        --bp-bg: #111318;
+        --bp-surface: #191c24;
+        --bp-border: #2b303b;
+        --bp-text: #f1f3f9;
+        --bp-muted: #9ba4b5;
+        --bp-accent: #a59bff;
+    }
+
+    .bp-dashboard *,
+    .bp-dashboard *::before,
+    .bp-dashboard *::after {
+        box-sizing: border-box;
+    }
+
+    .bp-dashboard a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .bp-dashboard .bp-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #c5c0ff;
+    }
+
+    .bp-dashboard .bp-status-dot {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
+        border-radius: 50%;
+        background: #55dfad;
+        box-shadow: 0 0 0 4px rgba(85, 223, 173, .12);
+    }
+
+    /* Hero */
+    .bp-dashboard .bp-hero {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        min-height: 245px;
+        padding: 38px 40px;
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 24px;
+        color: #fff;
+        background:
+            radial-gradient(ellipse at 88% 10%, rgba(130,112,255,.35), transparent 35%),
+            radial-gradient(ellipse at 65% 120%, rgba(42,190,177,.16), transparent 40%),
+            linear-gradient(120deg, #17172f 0%, #24204d 55%, #171d35 100%);
+        box-shadow: 0 18px 45px rgba(30, 28, 70, .12);
+    }
+
+    .bp-dashboard .bp-hero::after {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        width: 250px;
+        height: 250px;
+        right: 8%;
+        top: -115px;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 28px rgba(255,255,255,.025),
+            0 0 0 58px rgba(255,255,255,.025);
+        pointer-events: none;
+    }
+
+    .bp-dashboard .bp-hero-copy {
+        max-width: 650px;
+    }
+
+    .bp-dashboard .bp-hero h1 {
+        margin: 20px 0 12px;
+        color: #fff;
+        font-size: clamp(27px, 3vw, 39px);
+        font-weight: 800;
+        letter-spacing: -1.4px;
+        line-height: 1.15;
+    }
+
+    .bp-dashboard .bp-hero p {
+        max-width: 590px;
+        margin: 0;
+        color: #c6c7df;
+        font-size: 14px;
+        line-height: 1.85;
+    }
+
+    .bp-dashboard .bp-primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-shrink: 0;
+        padding: 13px 18px;
+        border: 1px solid rgba(255,255,255,.45);
+        border-radius: 12px;
+        background: #fff;
+        color: #28234d;
+        font-size: 13px;
+        font-weight: 800;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .bp-dashboard .bp-primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,.16);
+    }
+
+    /* Section headings */
+    .bp-dashboard .bp-section {
+        margin-top: 34px;
+    }
+
+    .bp-dashboard .bp-section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 17px;
+    }
+
+    .bp-dashboard .bp-section-title {
+        margin: 0;
+        color: var(--bp-text);
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -.35px;
+    }
+
+    .bp-dashboard .bp-section-subtitle {
+        margin: 5px 0 0;
+        color: var(--bp-muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    /* Metric cards */
+    .bp-dashboard .bp-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .bp-dashboard .bp-metric {
+        position: relative;
+        min-width: 0;
+        padding: 23px;
+        border: 1px solid var(--bp-border);
+        border-radius: var(--bp-radius);
+        background: var(--bp-surface);
+        box-shadow: 0 3px 12px rgba(20, 28, 50, .025);
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .bp-dashboard .bp-metric:hover {
+        transform: translateY(-3px);
+        border-color: #c7c2ff;
+        box-shadow: 0 12px 28px rgba(32, 28, 75, .07);
+    }
+
+    .bp-dashboard .bp-metric-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .bp-dashboard .bp-metric-label {
+        color: var(--bp-muted);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .bp-dashboard .bp-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 43px;
+        height: 43px;
+        flex: 0 0 43px;
+        border-radius: 13px;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .bp-dashboard .bp-icon-purple {
+        color: #6658dc;
+        background: #efedff;
+    }
+
+    .bp-dashboard .bp-icon-green {
+        color: #16896b;
+        background: #e2f8ef;
+    }
+
+    .bp-dashboard .bp-icon-amber {
+        color: #b77917;
+        background: #fff3d9;
+    }
+
+    .bp-dashboard .bp-metric-value {
+        display: block;
+        margin-top: 19px;
+        color: var(--bp-text);
+        font-size: clamp(29px, 3vw, 37px);
+        font-weight: 800;
+        letter-spacing: -1.2px;
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+    }
+
+    .bp-dashboard .bp-metric-desc {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 11px;
+        color: var(--bp-muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .bp-dashboard .bp-mini-dot {
+        width: 6px;
+        height: 6px;
+        flex: 0 0 6px;
+        border-radius: 50%;
+        background: #36bd91;
+    }
+
+    /* Quick links */
+    .bp-dashboard .bp-shortcuts {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .bp-dashboard .bp-shortcut {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 188px;
+        padding: 21px;
+        border: 1px solid var(--bp-border);
+        border-radius: var(--bp-radius);
+        background: var(--bp-surface);
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .bp-dashboard .bp-shortcut:hover {
+        transform: translateY(-3px);
+        border-color: #c7c2ff;
+        box-shadow: 0 12px 28px rgba(32, 28, 75, .07);
+    }
+
+    .bp-dashboard .bp-shortcut .bp-icon {
+        margin-bottom: 23px;
+    }
+
+    .bp-dashboard .bp-shortcut-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0;
+        color: var(--bp-text);
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.5;
+    }
+
+    .bp-dashboard .bp-arrow {
+        color: var(--bp-muted);
+        font-size: 17px;
+        transition: transform .2s ease;
+    }
+
+    .bp-dashboard .bp-shortcut:hover .bp-arrow {
+        transform: translateX(4px);
+        color: var(--bp-accent);
+    }
+
+    .bp-dashboard .bp-shortcut-desc {
+        margin: 7px 0 0;
+        color: var(--bp-muted);
+        font-size: 12px;
+        line-height: 1.75;
+    }
+
+    /* Announcement */
+    .bp-dashboard .bp-announcement {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 21px 23px;
+        border: 1px solid #dedbff;
+        border-radius: 16px;
+        background: #f7f6ff;
+    }
+
+    .dark .bp-dashboard .bp-announcement {
+        border-color: #3b365e;
+        background: #211f32;
+    }
+
+    .bp-dashboard .bp-announcement-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 12px;
+        background: #e9e6ff;
+        color: #6558d9;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .dark .bp-dashboard .bp-announcement-icon {
+        background: #393253;
+        color: #c4bcff;
+    }
+
+    .bp-dashboard .bp-announcement h3 {
+        margin: 0;
+        color: var(--bp-text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .bp-dashboard .bp-announcement p {
+        margin: 5px 0 0;
+        color: var(--bp-muted);
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    .bp-dashboard .bp-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 18px;
+        border-top: 1px solid var(--bp-border);
+        color: var(--bp-muted);
+        font-size: 11px;
+    }
+
+    @media (max-width: 1100px) {
+        .bp-dashboard .bp-shortcuts {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .bp-dashboard {
+            padding: 16px;
+        }
+
+        .bp-dashboard .bp-hero {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 27px 24px;
+            border-radius: 19px;
+        }
+
+        .bp-dashboard .bp-hero h1 {
+            font-size: 29px;
+        }
+
+        .bp-dashboard .bp-metrics {
+            grid-template-columns: 1fr;
+        }
+
+        .bp-dashboard .bp-shortcuts {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .bp-dashboard .bp-shortcut {
+            min-height: 175px;
+            padding: 16px;
+        }
+
+        .bp-dashboard .bp-footer {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 390px) {
+        .bp-dashboard .bp-shortcuts {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bp-dashboard *,
+        .bp-dashboard *::before,
+        .bp-dashboard *::after {
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="bp-dashboard">
+
+    <!-- HERO -->
+    <section class="bp-hero">
+        <div class="bp-hero-copy">
+            <span class="bp-eyebrow">
+                <span class="bp-status-dot"></span>
+                BLOG MANAGEMENT SYSTEM
+            </span>
+
+            <h1>Selamat datang,<br>di pusat kendali blog.</h1>
+
+            <p>
+                Kelola publikasi, pantau perkembangan artikel, dan atur
+                konten situs Anda melalui satu dashboard yang terorganisasi.
+            </p>
+        </div>
+
+        <a class="bp-primary-btn" href="/admin/blog/post/add/">
+            <span aria-hidden="true">＋</span>
+            Tulis Artikel
+            <span aria-hidden="true">↗</span>
+        </a>
+    </section>
+
+    <!-- METRICS -->
+    <section class="bp-section">
+        <div class="bp-section-head">
+            <div>
+                <h2 class="bp-section-title">Ringkasan Konten</h2>
+                <p class="bp-section-subtitle">
+                    Gambaran jumlah artikel yang dikelola di sistem.
+                </p>
+            </div>
+        </div>
+
+        <div class="bp-metrics">
+            {% for metric in kpi_metrics %}
+                <article class="bp-metric">
+                    <div class="bp-metric-top">
+                        <span class="bp-metric-label">{{ metric.title }}</span>
+
+                        {% if forloop.counter == 1 %}
+                            <span class="bp-icon bp-icon-purple" aria-hidden="true">▤</span>
+                        {% elif forloop.counter == 2 %}
+                            <span class="bp-icon bp-icon-green" aria-hidden="true">✓</span>
+                        {% else %}
+                            <span class="bp-icon bp-icon-amber" aria-hidden="true">◷</span>
+                        {% endif %}
+                    </div>
+
+                    <strong class="bp-metric-value">{{ metric.value }}</strong>
+
+                    <p class="bp-metric-desc">
+                        <span class="bp-mini-dot"></span>
+                        {{ metric.description }}
+                    </p>
+                </article>
+            {% empty %}
+                <article class="bp-metric">
+                    <span class="bp-metric-label">Statistik belum tersedia</span>
+                    <p class="bp-metric-desc">
+                        Pastikan callback dashboard mengirimkan kpi_metrics.
+                    </p>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- SHORTCUTS -->
+    <section class="bp-section">
+        <div class="bp-section-head">
+            <div>
+                <h2 class="bp-section-title">Akses Cepat</h2>
+                <p class="bp-section-subtitle">
+                    Buka area pengelolaan yang sering digunakan.
+                </p>
+            </div>
+        </div>
+
+        <div class="bp-shortcuts">
+            <a class="bp-shortcut" href="/admin/blog/post/">
+                <span class="bp-icon bp-icon-purple" aria-hidden="true">▤</span>
+                <h3 class="bp-shortcut-title">
+                    Artikel
+                    <span class="bp-arrow" aria-hidden="true">↗</span>
+                </h3>
+                <p class="bp-shortcut-desc">
+                    Kelola artikel, perbarui isi, dan atur publikasi.
+                </p>
+            </a>
+
+            <a class="bp-shortcut" href="/admin/taggit/tag/">
+                <span class="bp-icon bp-icon-green" aria-hidden="true">⌑</span>
+                <h3 class="bp-shortcut-title">
+                    Tag
+                    <span class="bp-arrow" aria-hidden="true">↗</span>
+                </h3>
+                <p class="bp-shortcut-desc">
+                    Atur tag untuk mengelompokkan topik artikel.
+                </p>
+            </a>
+
+            <a class="bp-shortcut" href="/admin/auth/user/">
+                <span class="bp-icon bp-icon-amber" aria-hidden="true">♙</span>
+                <h3 class="bp-shortcut-title">
+                    Pengguna
+                    <span class="bp-arrow" aria-hidden="true">↗</span>
+                </h3>
+                <p class="bp-shortcut-desc">
+                    Kelola akun dan hak akses pengguna admin.
+                </p>
+            </a>
+
+            <a class="bp-shortcut" href="/admin/blog/sitesetting/">
+                <span class="bp-icon bp-icon-purple" aria-hidden="true">⚙</span>
+                <h3 class="bp-shortcut-title">
+                    Pengaturan Situs
+                    <span class="bp-arrow" aria-hidden="true">↗</span>
+                </h3>
+                <p class="bp-shortcut-desc">
+                    Sesuaikan konfigurasi situs dan metadata global.
+                </p>
+            </a>
+        </div>
+    </section>
+
+    <!-- ANNOUNCEMENT -->
+    {% if announcement %}
+    <section class="bp-section">
+        <div class="bp-announcement">
+            <span class="bp-announcement-icon" aria-hidden="true">i</span>
+            <div>
+                <h3>{{ announcement.title }}</h3>
+                <p>{{ announcement.message }}</p>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <footer class="bp-footer">
+        <span>Admin Portal Blog</span>
+        <span>Content management dashboard</span>
+    </footer>
+
+</div>
+{% endblock %}

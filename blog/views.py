@@ -1,47 +1,68 @@
-# blog/views.py
 from django.shortcuts import render, get_object_or_404
-from .models import Post
 from django.core.paginator import Paginator
-from django.db.models import Q  # 1. Impor modul Q untuk pencarian kompleks
-from taggit.models import (
-    Tag,
-)  # <-- WAJIB TAMBAHKAN: Impor model Tag dari library taggit
+from django.db.models import Q
+from django.utils import timezone
+
+from taggit.models import Tag
+
+from .models import Post
 
 
-# OPTIMASI: Menambahkan parameter tag_slug dengan nilai default None agar fungsi ini multi-fungsi
 def post_list(request, tag_slug=None):
-    posts_list = Post.objects.all()
-    tag = None  # Inisialisasi variabel tag aktif
+    # Hanya tampilkan artikel yang tanggal publikasinya sudah tiba.
+    posts_list = (
+        Post.objects.filter(publish__lte=timezone.now())
+        .select_related("author")
+        .prefetch_related("tags")
+        .order_by("-publish")
+    )
 
-    # 2. Ambil kata kunci pencarian dari URL parameter '?query='
-    query = request.GET.get("query")
+    tag = None
+
+    # Pencarian artikel berdasarkan judul dan isi.
+    query = request.GET.get("query", "").strip()
+
     if query:
-        # Filter artikel: judul mengandung kata kunci ATAU isi mengandung kata kunci
         posts_list = posts_list.filter(
-            Q(title__icontains=query) | Q(body__icontains=query)
-        ).distinct()  # .distinct() memastikan tidak ada artikel ganda yang muncul
+            Q(title__icontains=query)
+            | Q(body__icontains=query)
+        )
 
-    # 3. LOGIKA BARU: Filter artikel berdasarkan tag yang diklik oleh pengunjung
+    # Filter artikel berdasarkan tag.
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
-        posts_list = posts_list.filter(tags__in=[tag])
+        posts_list = posts_list.filter(tags__slug=tag_slug)
 
-    # 4. Pagination tetap berjalan normal setelah hasil difilter
+    # Pagination: 5 artikel per halaman.
     paginator = Paginator(posts_list, 5)
-    page_number = request.GET.get("page")
-    posts = paginator.get_page(page_number)
+    posts = paginator.get_page(request.GET.get("page"))
 
-    # 5. Kirimkan variabel 'posts', 'query', dan 'tag' ke template
-    return render(
-        request, "blog/post/list.html", {"posts": posts, "query": query, "tag": tag}
-    )
+    context = {
+        "posts": posts,
+        "query": query,
+        "tag": tag,
+    }
+
+    return render(request, "blog/post/list.html", context)
 
 
 def post_detail(request, year, month, day, post_slug):
+    # Artikel hanya dapat dibuka publik setelah tanggal publikasinya tiba.
     post = get_object_or_404(
-        Post, slug=post_slug, publish__year=year, publish__month=month, publish__day=day
+        Post.objects.filter(
+            publish__lte=timezone.now()
+        ).select_related("author").prefetch_related("tags"),
+        slug=post_slug,
+        publish__year=year,
+        publish__month=month,
+        publish__day=day,
     )
-    return render(request, "blog/post/detail.html", {"post": post})
+
+    return render(
+        request,
+        "blog/post/detail.html",
+        {"post": post},
+    )
 
 
 def about(request):

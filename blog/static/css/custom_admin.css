@@ -1,0 +1,69 @@
+/* Batasi lebar konten formulir */
+#content,
+#content-main {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Cegah fieldset dan kolom formulir melampaui container */
+fieldset,
+.form-row,
+[class*="field-"] {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* CKEditor 5 */
+.django-ckeditor-5-wrapper,
+.ck.ck-editor {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.ck.ck-editor__main,
+.ck.ck-editor__editable_inline {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* Toolbar CKEditor */
+.ck.ck-toolbar {
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+/* Menghilangkan border kaku & tajam pada tabel admin bawaan Unfold */
+.unfold-table-wrapper {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(226, 232, 240, 0.7) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.01) !important;
+    background: #ffffff !important;
+}
+
+/* Mengubah baris tabel agar memiliki padding lega (tidak dempet kaku) */
+.unfold-table-wrapper th,
+.unfold-table-wrapper td {
+    padding: 16px 20px !important;
+    font-size: 0.875rem !important;
+}
+
+/* Efek hover dinamis pada baris tabel saat disorot mouse */
+.unfold-table-wrapper tbody tr:hover {
+    background-color: rgba(248, 250, 252, 0.8) !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Merapikan kolom pencarian (search bar) di halaman list */
+#searchbar {
+    border-radius: 14px !important;
+    padding: 10px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+}

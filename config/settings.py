@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 import os
 import environ
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,15 +27,37 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))  # <-- Ini untuk membaca fi
 # ==========================================
 
 # 3. Sekarang baris di bawah ini baru bisa berjalan tanpa error
-SECRET_KEY = env("SECRET_KEY")
+ENVIRONMENT = env("ENVIRONMENT", default="development")
+# secret key
+if ENVIRONMENT == "production":
+    SECRET_KEY = env("SECRET_KEY")
+else:
+    SECRET_KEY = env("SECRET_KEY")
+
 
 DEBUG = env.bool("DEBUG", default=False)
+if ENVIRONMENT == "production":
+    DEBUG = False
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# Allowed Hos
+if ENVIRONMENT == "production":
+    ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+else:
+    ALLOWED_HOSTS = env.list(
+        "ALLOWED_HOSTS",
+        default=["127.0.0.1", "localhost"],
+    )
 
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",  # Harus ditaruh paling atas!
+    "unfold.contrib.filters",  # Opsional: Untuk filter modern di sidebar
+    "unfold.contrib.forms",  # Opsional: Untuk layout form modern
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,6 +67,7 @@ INSTALLED_APPS = [
     "blog",
     "django_ckeditor_5",
     "taggit",
+    "django.contrib.sitemaps",
 ]
 
 MIDDLEWARE = [
@@ -60,14 +85,17 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "blog" / "templates",
+            BASE_DIR / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # DAFTARKAN KONTEKS PROCESSOR KUSTOM KITA DI SINI /settingan title dan deskripsi 
+                # DAFTARKAN KONTEKS PROCESSOR KUSTOM KITA DI SINI /settingan title dan deskripsi
                 "blog.context_processors.site_settings",
             ],
         },
@@ -122,33 +150,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-# config/settings.py
 
-# Konfigurasi static files yang sudah ada sebelumnya
-STATIC_URL = "static/"
+# Static files
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    BASE_DIR / "static",
 ]
 
-# ========================================================
-# TAMBAHKAN BARIS INI (Wajib untuk mengatasi error tadi!)
-# ========================================================
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-# ========================================================
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Konfigurasi media yang sudah dibuat sebelumnya
-MEDIA_URL = "media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Media files (gambar artikel yang diunggah)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # URL dasar untuk mengakses berkas media melalui browser
 MEDIA_URL = "media/"
@@ -264,10 +283,75 @@ CKEDITOR_5_CONFIGS = {
                 {"language": "css", "label": "CSS"},
             ]
         },
-        "htmlSupport": {
-            "allow": [
-                {"name": "/.*/", "attributes": True, "classes": True, "styles": True}
-            ]
-        },
+        # "htmlSupport": {
+        #     "allow": [
+        #         {"name": "/.*/", "attributes": True, "classes": True, "styles": True}
+        #     ]
+        # },
     }
+}
+
+# settings.py
+
+# settings.py
+
+UNFOLD = {
+    "SITE_TITLE": "Admin Portal Blog",
+    "SITE_HEADER": "Admin Portal Blog",
+    # Fungsi callback dashboard kustom
+    "DASHBOARD_CALLBACK": "blog.dashboard.get_dashboard_context",
+    "SHOW_APPS_AT_TOP": False,
+    # 1. Membuat Sidebar Navigasi yang Lebih Rapi & Dikelompokkan
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": _("Navigation"),
+                "items": [
+                    {
+                        "title": _("Dashboard Utama"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+            {
+                "title": _("Konten Blog"),
+                "items": [
+                    {
+                        "title": _("Semua Postingan"),
+                        "icon": "article",
+                        # DIPERBAIKI: Menggunakan 'blog_post_changelist' sesuai model Post Anda
+                        "link": reverse_lazy("admin:blog_post_changelist"),
+                    },
+                    {
+                        "title": _("Tag Kategori"),
+                        "icon": "label",
+                        # DIPERBAIKI: Menggunakan 'taggit_tag_changelist' (tanpa huruf 's')
+                        "link": reverse_lazy("admin:taggit_tag_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Pengaturan & Pengguna"),
+                "items": [
+                    {
+                        "title": _("Kelola Pengguna"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Konfigurasi Situs"),
+                        "icon": "settings",
+                        # DIPERBAIKI: Menggunakan 'blog_sitesetting_changelist' sesuai model SiteSetting Anda
+                        "link": reverse_lazy("admin:blog_sitesetting_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+    "STYLES": [
+        lambda request: "/static/css/custom_admin.css",
+    ],
 }

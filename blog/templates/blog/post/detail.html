@@ -1,72 +1,178 @@
 {% extends "blog/base.html" %}
+{% load static %}
 
-{% block title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
+{% block title %}{{ post.title|striptags|truncatechars:65 }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
 
-{% block meta_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
-{% block meta_keywords %}{{ post.meta_keywords }}{% endblock %}
+{# Samakan nama blok ini dengan base.html yang menggunakan block description #}
+{% block meta_description %}{{ post.body|striptags|truncatechars:160 }}{% endblock %}
 
-{% block meta_robots %}index, follow{% endblock %}
-{% block og_type %}article{% endblock %}
-{% block og_title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
-{% block og_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
-{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}
-{% block twitter_card %}{% if post.image %}summary_large_image{% else %}summary{% endif %}{% endblock %}
-{% block twitter_title %}{{ post.title|striptags }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
-{% block twitter_description %}{% if post.excerpt %}{{ post.excerpt|striptags|truncatechars:160 }}{% else %}{{ post.body|striptags|truncatechars:160 }}{% endif %}{% endblock %}
+{% block meta_robots %}index, follow, max-image-preview:large{% endblock %}
 
 {% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}
 
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title|striptags|truncatechars:65 }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
+{% block og_description %}{{ post.body|striptags|truncatechars:200 }}{% endblock %}
+{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}
+
 {% block og_image %}
     {% if post.image %}
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
-    <meta property="og:image:alt" content="{{ post.title|striptags }}">
-    {% else %}
-    <meta property="og:image" content="">
+        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+        <meta property="og:image:alt" content="{{ post.title|striptags|escape }}">
+    {% endif %}
+{% endblock %}
+
+{% block twitter_card %}{% if post.image %}summary_large_image{% else %}summary{% endif %}{% endblock %}
+{% block twitter_title %}{{ post.title|striptags|truncatechars:65 }} | {{ site_info.site_title|default:"Weblog Teknologi" }}{% endblock %}
+{% block twitter_description %}{{ post.body|striptags|truncatechars:200 }}{% endblock %}
+
+{% block twitter_image %}
+    {% if post.image %}
+        <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+        <meta name="twitter:image:alt" content="{{ post.title|striptags|escape }}">
     {% endif %}
 {% endblock %}
 
 {% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+
     <meta property="article:published_time" content="{{ post.publish|date:'c' }}">
-    {% if post.author %}<meta property="article:author" content="{{ post.author.get_full_name|default:post.author.username }}">{% endif %}
+    <meta property="article:modified_time" content="{{ post.updated|date:'c' }}">
+
+    {% if post.author %}
+        <meta property="article:author" content="{{ post.author.get_full_name|default:post.author.username|escape }}">
+    {% endif %}
+
+    {% for tag in post.tags.all %}
+        <meta property="article:tag" content="{{ tag.name|escape }}">
+    {% endfor %}
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ request.scheme }}://{{ request.get_host }}{{ request.path|escapejs }}"
+      },
+      "headline": "{{ post.title|striptags|escapejs }}",
+      "description": "{{ post.body|striptags|truncatechars:200|escapejs }}",
+      "datePublished": "{{ post.publish|date:'c' }}",
+      "dateModified": "{{ post.updated|date:'c' }}",
+      "publisher": {
+        "@type": "Organization",
+        "name": "{{ site_info.site_title|default:'Weblog Teknologi'|escapejs }}"
+      }{% if post.author %},
+      "author": {
+        "@type": "Person",
+        "name": "{{ post.author.get_full_name|default:post.author.username|escapejs }}"
+      }{% endif %}{% if post.image %},
+      "image": [
+        "{{ request.scheme }}://{{ request.get_host }}{{ post.image.url|escapejs }}"
+      ]{% endif %}{% if post.tags.all %},
+      "keywords": "{% for tag in post.tags.all %}{{ tag.name|escapejs }}{% if not forloop.last %}, {% endif %}{% endfor %}"{% endif %}
+    }
+    </script>
 {% endblock %}
 
 {% block content %}
-<article class="card-premium p-4 p-sm-5">
-    <nav aria-label="Breadcrumb" class="small mb-4">
-        <a href="{% url 'blog:post_list' %}">Artikel</a>
-        <span class="text-secondary mx-2" aria-hidden="true">/</span>
-        <span class="text-secondary" aria-current="page">{{ post.title|striptags|truncatechars:70 }}</span>
+<article class="detail-article" itemscope itemtype="https://schema.org/BlogPosting">
+
+    <nav class="detail-breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'blog:post_list' %}">
+            <i class="bi bi-house-door" aria-hidden="true"></i>
+            Artikel
+        </a>
+
+        <i class="bi bi-chevron-right breadcrumb-separator" aria-hidden="true"></i>
+
+        <span aria-current="page">{{ post.title|striptags|truncatechars:65 }}</span>
     </nav>
 
-    <header class="mb-4">
-        <h1 class="display-6 fw-bold mb-3">{{ post.title }}</h1>
+    <header class="detail-header">
+        <p class="detail-category">Tutorial &amp; Teknologi</p>
 
-        <div class="d-flex flex-wrap align-items-center gap-2 small text-secondary">
+        <h1 class="detail-title" itemprop="headline">{{ post.title }}</h1>
+
+        <div class="detail-meta">
             {% if post.author %}
-            <span><i class="bi bi-person-circle me-1" aria-hidden="true"></i>{{ post.author.get_full_name|default:post.author.username }}</span>
-            <span aria-hidden="true">·</span>
+                <div class="detail-author">
+                    <span class="author-avatar" aria-hidden="true">
+                        {{ post.author.username|slice:":1"|upper }}
+                    </span>
+
+                    <span class="author-info">
+                        <span class="author-label">Ditulis oleh</span>
+                        <span class="author-name">
+                            {{ post.author.get_full_name|default:post.author.username }}
+                        </span>
+                    </span>
+                </div>
             {% endif %}
-            <time datetime="{{ post.publish|date:'c' }}"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ post.publish|date:"d M Y" }}</time>
+
+            <span class="detail-meta-divider" aria-hidden="true"></span>
+
+            <div class="detail-date">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <time datetime="{{ post.publish|date:'c' }}" itemprop="datePublished">
+                    {{ post.publish|date:"d F Y" }}
+                </time>
+            </div>
         </div>
     </header>
 
     {% if post.image %}
-    <figure class="mb-4">
-        <img src="{{ post.image.url }}" alt="{{ post.title|striptags }}" class="post-image rounded-4" width="1200" height="675" fetchpriority="high" decoding="async">
-        {% if post.image_caption %}
-        <figcaption class="text-secondary small text-center mt-2">{{ post.image_caption }}</figcaption>
-        {% endif %}
-    </figure>
+        <figure class="detail-featured-image">
+            <img
+                src="{{ post.image.url }}"
+                alt="{{ post.title|striptags|escape }}"
+                width="1200"
+                height="675"
+                fetchpriority="high"
+                decoding="async"
+                itemprop="image">
+        </figure>
     {% endif %}
 
-    <div class="ck-content">
+    <div class="detail-content ck-content" itemprop="articleBody">
         {{ post.body|safe }}
     </div>
 
-    <footer class="border-top mt-5 pt-4">
-        <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary rounded-3">
-            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Kembali ke Artikel
+    {% if post.tags.all %}
+        <section class="detail-tags-section" aria-labelledby="detail-tags-heading">
+            <h2 id="detail-tags-heading" class="detail-tags-heading">
+                <i class="bi bi-tags" aria-hidden="true"></i>
+                Topik Artikel
+            </h2>
+
+            <div class="detail-tags">
+                {% for tag in post.tags.all %}
+                    <a
+                        class="detail-tag"
+                        href="{% url 'blog:post_list_by_tag' tag.slug %}"
+                        rel="tag">
+                        {{ tag.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <footer class="detail-footer">
+        <div class="detail-footer-icon" aria-hidden="true">
+            <i class="bi bi-journal-check"></i>
+        </div>
+
+        <div class="detail-footer-text">
+            <h2>Terus belajar dan membangun.</h2>
+            <p>Jelajahi artikel lainnya untuk memperdalam pengetahuan dan keterampilan.</p>
+        </div>
+
+        <a class="detail-back-link" href="{% url 'blog:post_list' %}">
+            Artikel lainnya
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
         </a>
     </footer>
+
 </article>
 {% endblock %}
