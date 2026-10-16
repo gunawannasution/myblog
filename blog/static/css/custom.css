@@ -9,6 +9,7 @@
     --accent: #a78bfa;
     --accent-strong: #8b5cf6;
     --radius: 18px;
+    --text-muted: #9ba5b5;
 }
 
 *,
@@ -171,12 +172,22 @@ input {
 }
 
 .header-search button {
+    display: inline-flex;
     flex: 0 0 38px;
     align-self: stretch;
+    align-items: center;
+    justify-content: center;
     border: 0;
     border-radius: 0 10px 10px 0;
     color: var(--muted);
     background: transparent;
+    cursor: pointer;
+}
+
+.header-search button .bi-search {
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .header-search button:hover {
@@ -1297,7 +1308,8 @@ input {
     font-size: .85rem;
     line-height: 1.85;
     -webkit-box-orient: vertical;
-    -line-clamp: 3;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
 }
 
 .article-tags {
@@ -1583,12 +1595,6 @@ input {
     }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    html:has(.detail-content) {
-        scroll-behavior: smooth;
-    }
-}
-
 /* ARTIKEL TERKAIT */
 
 /* =========================================
@@ -1802,4 +1808,29 @@ pre.code-block code {
 /* Mencegah teks terpilih saat tombol diklik cepat */
 .code-copy-button:active {
     transform: scale(0.95);
+}
+
+
+
+.header-search button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    padding: 0;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.header-search button svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.header-search button:hover {
+    color: var(--accent);
 }
