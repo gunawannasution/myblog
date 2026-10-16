@@ -9,32 +9,40 @@
 
     <title>{% block title %}{{ site_info.site_title|default:"Weblog Teknologi" }} — {{ site_info.site_tagline|default:"Tutorial dan catatan pemrograman" }}{% endblock %}</title>
 
-    <meta name="description" content="{% block meta_description %}{{ post.body|striptags|truncatechars:160 }}{% endblock %}">
-    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    {# SEO: deskripsi utama. Template artikel dapat mengganti isi blok ini. #}
+    <meta name="description" content="{% block meta_description %}{{ site_info.site_tagline|default:'Tutorial pemrograman, pengembangan web, dan teknologi praktis.'|striptags|truncatechars:160 }}{% endblock %}">
+
+    <meta name="robots" content="{% block meta_robots %}index, follow, max-image-preview:large{% endblock %}">
+
+    {# Canonical: halaman dapat mengganti URL jika diperlukan. #}
     <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
 
+    {# Open Graph #}
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="{{ site_info.site_title|default:'Weblog Teknologi' }}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:title" content="{% block og_title %}{{ site_info.site_title|default:'Weblog Teknologi' }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ site_info.site_tagline|default:'Tutorial dan catatan pemrograman' }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ site_info.site_tagline|default:'Tutorial pemrograman, pengembangan web, dan teknologi praktis.'|striptags|truncatechars:160 }}{% endblock %}">
     <meta property="og:url" content="{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
     {% block og_image %}{% endblock %}
 
+    {# Twitter / X Card #}
     <meta name="twitter:card" content="{% block twitter_card %}summary{% endblock %}">
     <meta name="twitter:title" content="{% block twitter_title %}{{ site_info.site_title|default:'Weblog Teknologi' }}{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}{{ site_info.site_tagline|default:'Tutorial dan catatan pemrograman' }}{% endblock %}">
-    {% comment %} {% block meta_keywords %}{% endblock %} {% endcomment %}
+    <meta name="twitter:description" content="{% block twitter_description %}{{ site_info.site_tagline|default:'Tutorial pemrograman, pengembangan web, dan teknologi praktis.'|striptags|truncatechars:160 }}{% endblock %}">
     {% block twitter_image %}{% endblock %}
+
+    {# Pertahankan blok tambahan milik template anak. #}
     {% block extra_head %}{% endblock %}
 
-    <!-- Bootstrap lokal -->
+    <!-- Bootstrap lokal: dipertahankan -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/github-dark.min.css' %}">
 
-    <!-- Bootstrap Icons: CDN yang sudah digunakan proyek sebelumnya -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Bootstrap Icons: dipertahankan -->
+    {% comment %} <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> {% endcomment %}
 
-    <!-- Design system blog -->
+    <!-- Design system blog: dipertahankan -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 </head>
 
@@ -127,7 +135,7 @@
 
                         <section class="sidebar-card sidebar-search-card">
                             <div class="sidebar-eyebrow">
-                                <span class="status-dot" aria-hidden="true"></span>
+                                <span aria-hidden="true"></span>
                                 TEMUKAN ARTIKEL
                             </div>
                             <h2 class="sidebar-heading">Apa yang ingin kamu pelajari?</h2>
@@ -164,7 +172,7 @@
                             </p>
                         </section>
 
-                        <section class="sidebar-card topics-card">
+                        {% comment %} <section class="sidebar-card topics-card">
                             <div class="sidebar-eyebrow">RUANG BELAJAR</div>
                             <h2 class="sidebar-heading">Topik utama</h2>
                             <div class="topic-list">
@@ -173,6 +181,27 @@
                                 <span class="topic-chip">JavaScript</span>
                                 <span class="topic-chip">Web Development</span>
                             </div>
+                            <p class="topic-note">
+                                Materi berorientasi praktik dan pengembangan keterampilan.
+                            </p>
+                        </section> {% endcomment %}
+                        <section class="sidebar-card topics-card">
+                            <div class="sidebar-eyebrow">RUANG BELAJAR</div>
+                            <h2 class="sidebar-heading">Topik utama</h2>
+
+                            <div class="topic-list">
+                                {% for tag in sidebar_tags %}
+                                    <a
+                                        class="topic-chip"
+                                        href="{% url 'blog:post_list_by_tag' tag.slug %}"
+                                    >
+                                        {{ tag.name }}
+                                    </a>
+                                {% empty %}
+                                    <span class="topic-chip">Belum ada topik</span>
+                                {% endfor %}
+                            </div>
+
                             <p class="topic-note">
                                 Materi berorientasi praktik dan pengembangan keterampilan.
                             </p>

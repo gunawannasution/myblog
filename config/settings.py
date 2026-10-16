@@ -97,6 +97,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 # DAFTARKAN KONTEKS PROCESSOR KUSTOM KITA DI SINI /settingan title dan deskripsi
                 "blog.context_processors.site_settings",
+                "blog.context_processors.sidebar_tags",
             ],
         },
     },
