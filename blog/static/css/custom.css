@@ -1757,89 +1757,148 @@ input {
     }
 }
 
-/* Container Utama untuk Blok Kode */
+/* =========================================
+   CODE BLOCK — Container Utama
+   ========================================= */
+
 pre.code-block {
     position: relative;
-    /* Wajib ada agar posisi tombol salin bisa absolut ke sini */
-    padding-top: 2.5rem;
-    /* Memberi ruang di bagian atas agar tombol tidak menutupi kode pertama */
-    background-color: #1e1e1e;
-    /* Warna gelap khas tema koding (sesuaikan dengan tema highlight.js Anda) */
-    border-radius: 8px;
+    margin: 1.5rem 0;
+    padding: 3rem 0 0;
     overflow-x: auto;
+    overflow-y: hidden;
+
+    background: #0d1117;
+    color: #e6edf3;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+
+    tab-size: 4;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Penataan Kotak Code di dalamnya */
+/* =========================================
+   CODE — Teks dan Syntax Highlighting
+   ========================================= */
+
 pre.code-block code {
     display: block;
-    padding: 0 1rem 1rem 1rem;
-    font-family: 'Fira Code', Consolas, Monaco, monospace;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    min-width: max-content;
+    padding: 0 1.25rem 1.25rem;
+
+    font-family:
+        "Fira Code",
+        "Cascadia Code",
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 0.875rem;
+    line-height: 1.8;
+    font-weight: 400;
+
+    color: #e6edf3;
+    background: transparent;
+
+    white-space: pre;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
-/* Tombol Salin (Default) */
+/* Seleksi teks kode */
+pre.code-block code::selection,
+pre.code-block code *::selection {
+    color: #ffffff;
+    background: #264f78;
+}
+
+/* =========================================
+   COPY BUTTON — Tombol Salin
+   ========================================= */
+
 .code-copy-button {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-weight: 500;
-    color: #a0a0a0;
-    background-color: #2d2d2d;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    opacity: 0.8;
-    /* Sedikit transparan saat diam */
-}
+    top: 0.55rem;
+    right: 0.65rem;
+    z-index: 2;
 
-/* Efek Hover (Saat Kursor Mengarah ke Tombol) */
-.code-copy-button:hover {
-    color: #ffffff;
-    background-color: #3d3d3d;
-    border-color: #555555;
-    opacity: 1;
-}
-
-/* Efek Ketika Berhasil Tersalin (Dipicu oleh class 'is-copied' dari JS) */
-.code-copy-button.is-copied {
-    color: #ffffff;
-    background-color: #198754;
-    /* Hijau sukses */
-    border-color: #198754;
-    opacity: 1;
-}
-
-/* Mencegah teks terpilih saat tombol diklik cepat */
-.code-copy-button:active {
-    transform: scale(0.95);
-}
-
-
-
-.header-search button {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 38px;
-    padding: 0;
-    color: var(--muted);
-    background: transparent;
-    border: 0;
+    gap: 0.4rem;
+
+    min-height: 30px;
+    padding: 0.35rem 0.7rem;
+
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+
+    color: #c9d1d9;
+    background: #21262d;
+    border: 1px solid #484f58;
+    border-radius: 6px;
+
     cursor: pointer;
+    opacity: 1;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
 }
 
-.header-search button svg {
-    display: block;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
+.code-copy-button:hover {
+    color: #ffffff;
+    background: #30363d;
+    border-color: #8b949e;
 }
 
-.header-search button:hover {
-    color: var(--accent);
+.code-copy-button:focus-visible {
+    outline: 2px solid #58a6ff;
+    outline-offset: 3px;
+}
+
+.code-copy-button:active {
+    transform: scale(0.97);
+}
+
+/* Status berhasil disalin */
+.code-copy-button.is-copied {
+    color: #ffffff;
+    background: #196c3a;
+    border-color: #2ea043;
+}
+
+/* =========================================
+   RESPONSIVE — Layar Kecil
+   ========================================= */
+
+@media (max-width: 768px) {
+    pre.code-block {
+        margin: 1rem -0.25rem;
+        border-radius: 8px;
+    }
+
+    pre.code-block code {
+        padding: 0 1rem 1rem;
+        font-size: 0.8rem;
+        line-height: 1.75;
+    }
+
+    .code-copy-button {
+        top: 0.45rem;
+        right: 0.45rem;
+        min-height: 28px;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Menghormati preferensi pengurangan animasi */
+@media (prefers-reduced-motion: reduce) {
+    .code-copy-button {
+        transition: none;
+    }
 }
